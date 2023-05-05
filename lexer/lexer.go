@@ -95,11 +95,17 @@ func (lexer *Lexer) skipWhiteSpace() {
 func (lexer *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	// 跳过所有没有意义的空格
 	lexer.skipWhiteSpace()
 
 	switch lexer.currentChar {
 	case '=':
-		tok = newToken(token.ASSIGN, lexer.currentChar)
+		if lexer.nextChar == '=' {
+			lexer.readChar()
+			tok = newTokenWithString(token.EQ, "==")
+		} else {
+			tok = newToken(token.ASSIGN, lexer.currentChar)
+		}
 	case ';':
 		tok = newToken(token.SEMICOLON, lexer.currentChar)
 	case '(':
@@ -114,20 +120,42 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, lexer.currentChar)
 	case '}':
 		tok = newToken(token.RBRACE, lexer.currentChar)
+	case '-':
+		tok = newToken(token.MINUS, lexer.currentChar)
+	case '!':
+		if lexer.nextChar == '=' {
+			lexer.readChar()
+			tok = newTokenWithString(token.NOT_EQ, "!=")
+		} else {
+			tok = newToken(token.BANG, lexer.currentChar)
+		}
+	case '*':
+		tok = newToken(token.ASTERISK, lexer.currentChar)
+	case '/':
+		tok = newToken(token.SLASH, lexer.currentChar)
+	case '<':
+		tok = newToken(token.LT, lexer.currentChar)
+	case '>':
+		tok = newToken(token.GT, lexer.currentChar)
 	case 0:
 		tok = newTokenWithString(token.EOF, "")
 	default:
 		if utils.IsLetter(lexer.currentChar) {
+			// 读取所有连续的字符串
 			literal := lexer.readIdentifier()
+			// 使用文本匹配固定的字符串，找到特殊的关键字，例如 let、fn
 			tok = newTokenWithString(token.LookupIdent(literal), literal)
 		} else if utils.IsDigit(lexer.currentChar) {
+			// 读取所哟连续的数字
 			// 暂时只支持整数
 			tok = newTokenWithString(token.INT, lexer.readNumber())
 		} else {
+			// 无法识别的范式
 			tok = newToken(token.ILLEGAL, lexer.currentChar)
 		}
 	}
 
+	// 读取下一个字符
 	lexer.readChar()
 
 	return tok
