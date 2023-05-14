@@ -1,13 +1,14 @@
 package statement
 
 import (
-	"interpreter/ast"
+	"bytes"
+	"interpreter/ast/node"
 	"interpreter/token"
 )
 
 type ReturnStatement struct {
 	Token       token.Token
-	ReturnValue ast.Expression
+	ReturnValue node.Expression
 }
 
 func (rs *ReturnStatement) TokenLiteral() string {
@@ -15,3 +16,15 @@ func (rs *ReturnStatement) TokenLiteral() string {
 }
 
 func (rs *ReturnStatement) StatementNode() {}
+
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(rs.TokenLiteral() + " ")
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
+	}
+
+	out.WriteString(";")
+	return out.String()
+}

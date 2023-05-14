@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"interpreter/lexer"
-	"interpreter/token"
+	"interpreter/parser"
 	"io"
 	"strings"
 )
@@ -23,9 +23,22 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		l := lexer.NewLexer(strings.NewReader(line))
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			_, _ = fmt.Fprintf(out, "%+v\n", tok)
+		p := parser.NewParser(l)
+
+		program := p.ParseProgram()
+		if len(p.Errors()) != 0 {
+			printParserErrors(out, p.Errors())
+			continue
 		}
+
+		_, _ = io.WriteString(out, program.String())
+		_, _ = io.WriteString(out, "\n")
 	}
 
+}
+
+func printParserErrors(out io.Writer, errros []string) {
+	for _, msg := range errros {
+		_, _ = io.WriteString(out, "\t"+msg+"\n")
+	}
 }

@@ -12,3 +12,7 @@ func (i *Identifier) TokenLiteral() string {
 }
 
 func (i *Identifier) ExpressionNode() {}
+
+func (i *Identifier) String() string {
+	return i.Value
+}

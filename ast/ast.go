@@ -1,21 +1,12 @@
 package ast
 
-type Node interface {
-	TokenLiteral() string
-}
-
-type Statement interface {
-	Node
-	StatementNode()
-}
-
-type Expression interface {
-	Node
-	ExpressionNode()
-}
+import (
+	"bytes"
+	"interpreter/ast/node"
+)
 
 type Program struct {
-	Statements []Statement
+	Statements []node.Statement
 }
 
 func (p *Program) TokenLiteral() string {
@@ -24,4 +15,13 @@ func (p *Program) TokenLiteral() string {
 	}
 
 	return ""
+}
+
+func (p *Program) String() string {
+	var out bytes.Buffer
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
 }
