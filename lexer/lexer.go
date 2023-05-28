@@ -86,6 +86,19 @@ func (lexer *Lexer) readIdentifier() string {
 	return lexer.readIdent(utils.IsLetter)
 }
 
+func (lexer *Lexer) readString() string {
+	current := make([]byte, 0)
+	for {
+		lexer.readChar()
+		if lexer.currentChar == '"' || lexer.currentChar == 0 {
+			break
+		}
+		current = append(current, lexer.currentChar)
+	}
+
+	return string(current)
+}
+
 func (lexer *Lexer) skipWhiteSpace() {
 	for utils.IsWriteSpace(lexer.currentChar) {
 		lexer.readChar()
@@ -120,6 +133,10 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, lexer.currentChar)
 	case '}':
 		tok = newToken(token.RBRACE, lexer.currentChar)
+	case '[':
+		tok = newToken(token.LBRACKET, lexer.currentChar)
+	case ']':
+		tok = newToken(token.RBRACKET, lexer.currentChar)
 	case '-':
 		tok = newToken(token.MINUS, lexer.currentChar)
 	case '!':
@@ -137,6 +154,10 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.LT, lexer.currentChar)
 	case '>':
 		tok = newToken(token.GT, lexer.currentChar)
+	case ':':
+		tok = newToken(token.COLON, lexer.currentChar)
+	case '"':
+		tok = newTokenWithString(token.STRING, lexer.readString())
 	case 0:
 		tok = newTokenWithString(token.EOF, "")
 	default:
