@@ -29,3 +29,12 @@ func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
 }
+
+func (e *Environment) Cover(name string, val Object) Object {
+	_, ok := e.store[name]
+	if !ok && e.outer != nil {
+		return e.outer.Cover(name, val)
+	}
+	e.store[name] = val
+	return val
+}

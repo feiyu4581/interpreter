@@ -75,6 +75,7 @@ func NewParser(l lexer.LexerI) *Parser {
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
 	p.registerPrefix(token.MACRO, p.parseMacroLiteral)
+	p.registerPrefix(token.FOR, p.parseForExpression)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -303,6 +304,41 @@ func (p *Parser) parseIfExpression() node.Expression {
 	}
 
 	return ifExpression
+}
+
+func (p *Parser) parseForExpression() node.Expression {
+	forExpression := &expression.ForExpression{Token: p.curToken}
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	p.nextToken()
+	forExpression.Prefix = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.SEMICOLON) {
+		return nil
+	}
+
+	p.nextToken()
+	forExpression.Condition = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.SEMICOLON) {
+		return nil
+	}
+	p.nextToken()
+
+	forExpression.Suffix = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	forExpression.Body = p.parseBlockStatement()
+	return forExpression
 }
 
 func (p *Parser) parseFunctionParameters() []*expression.Identifier {

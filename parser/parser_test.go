@@ -951,3 +951,72 @@ func TestAssignmentExpression(t *testing.T) {
 		}
 	}
 }
+
+func TestForExpression(t *testing.T) {
+	input := `
+	for (i = 0; i < 10; i = i + 1) {
+		x
+	}`
+
+	l := lexer.NewLexer(strings.NewReader(input))
+	p := NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n",
+			1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*statement.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
+			program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*expression.ForExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ForExpression. got=%T",
+			stmt.Expression)
+	}
+
+	prefixAssignment, ok := exp.Prefix.(*expression.AssignmentExpression)
+	if !ok {
+		t.Fatalf("exp not *ast.AssignmentExpression. got=%T", exp.Suffix)
+	}
+
+	if !testIdentifier(t, prefixAssignment.Name, "i") {
+		return
+	}
+
+	if !testIntegerLiteral(t, prefixAssignment.Value, 0) {
+		return
+	}
+
+	if !testInfixExpression(t, exp.Condition, "i", "<", 10) {
+		return
+	}
+
+	assignment, ok := exp.Suffix.(*expression.AssignmentExpression)
+	if !ok {
+		t.Fatalf("exp not *ast.AssignmentExpression. got=%T", exp.Suffix)
+	}
+
+	if !testIdentifier(t, assignment.Name, "i") {
+		return
+	}
+
+	if !testInfixExpression(t, assignment.Value, "i", "+", 1) {
+		return
+	}
+
+	body, ok := exp.Body.Statements[0].(*statement.ExpressionStatement)
+	if !ok {
+		t.Fatalf("Statements[0] is not ast.ExpressionStatement. got=%T",
+			exp.Body.Statements[0])
+	}
+
+	if !testIdentifier(t, body.Expression, "x") {
+		return
+	}
+}

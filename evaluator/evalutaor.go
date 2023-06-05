@@ -60,6 +60,8 @@ func Eval(node node.Node, env *object.Environment) object.Object {
 			return val
 		}
 		env.Set(n.Name.Value, val)
+	case *expression.ForExpression:
+		return evalForExpression(n, env)
 	case *expression.AssignmentExpression:
 		_, ok := env.Get(n.Name.Value)
 		if !ok {
@@ -71,7 +73,7 @@ func Eval(node node.Node, env *object.Environment) object.Object {
 			return val
 		}
 
-		env.Set(n.Name.Value, val)
+		env.Cover(n.Name.Value, val)
 	case *expression.IntegerLiteral:
 		return &object.Integer{Value: n.Value}
 	case *expression.Boolean:
@@ -273,6 +275,44 @@ func evalIdentifier(id *expression.Identifier, env *object.Environment) object.O
 	}
 
 	return newError("identifier not found: " + id.Value)
+}
+
+func evalForExpression(fe *expression.ForExpression, env *object.Environment) object.Object {
+	closedEnv := object.NewEnclosedEnvironment(env)
+	if fe.Prefix != nil {
+		prefix, ok := fe.Prefix.(*expression.AssignmentExpression)
+		if !ok {
+			return newError("invalid prefix for for-loop: %s", fe.String())
+		}
+
+		closedEnv.Set(prefix.Name.Value, NULL)
+		if val := Eval(fe.Prefix, closedEnv); isError(val) {
+			return val
+		}
+	}
+
+	var res object.Object
+	for {
+		conditionRes := Eval(fe.Condition, closedEnv)
+		if isError(conditionRes) {
+			return conditionRes
+		}
+
+		if !isTruthy(conditionRes) {
+			return res
+		}
+
+		res = evalBlockStatement(fe.Body, closedEnv)
+		if res != nil && (isError(res) || res.Type() == object.RETURN_VALUE_OBJ) {
+			return res
+		}
+
+		if fe.Suffix != nil {
+			if val := Eval(fe.Suffix, closedEnv); isError(val) {
+				return val
+			}
+		}
+	}
 }
 
 func evalIfExpression(ie *expression.IfExpression, env *object.Environment) object.Object {

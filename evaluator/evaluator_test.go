@@ -113,6 +113,39 @@ func TestIfElseExpressions(t *testing.T) {
 	}
 }
 
+func TestForExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int
+	}{
+		{`
+let x = 0;
+for (i = 0; i < 10; i = i + 1) {
+	x = x + i;
+}
+return x;
+`, 45,
+		},
+		{`
+let x = 0;
+for (i = 0; i < 10; i = i + 1) {
+	x = x + i;
+	if (x > 20) {
+		return x;
+	}
+}
+
+return x;
+`, 21,
+		},
+	}
+
+	for _, test := range tests {
+		evaluated := testEval(test.input)
+		testIntegerObject(t, evaluated, int64(test.expected))
+	}
+}
+
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input    string

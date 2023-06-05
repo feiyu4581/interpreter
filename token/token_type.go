@@ -11,6 +11,7 @@ var keyWords = map[string]TokenType{
 	"else":   ELSE,
 	"return": RETURN,
 	"macro":  MACRO,
+	"for":    FOR,
 }
 
 func LookupIdent(ident string) TokenType {
