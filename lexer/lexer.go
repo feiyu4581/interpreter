@@ -121,12 +121,7 @@ func (lexer *Lexer) NextToken() token.Token {
 	case ',':
 		tok = newToken(token.COMMA, lexer.currentChar)
 	case '+':
-		if lexer.nextChar == '=' {
-			lexer.readChar()
-			tok = newTokenWithString(token.PLUS_ASSIGN, "+=")
-		} else {
-			tok = newToken(token.PLUS, lexer.currentChar)
-		}
+		tok = newToken(token.PLUS, lexer.currentChar)
 	case '{':
 		tok = newToken(token.LBRACE, lexer.currentChar)
 	case '}':

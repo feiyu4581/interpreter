@@ -7,10 +7,6 @@ import (
 	"testing"
 )
 
-// lexer/lexer_test.go
-
-// lexer/lexer_test.go
-
 func TestNextToken(t *testing.T) {
 	input := `let five = 5;
 let ten = 10;
@@ -36,7 +32,6 @@ if (5 < 10) {
 [1, 2];
 {"foo": "bar"}
 macro(x, y) { x + y; };
-x += 10
 `
 
 	tests := []struct {
@@ -147,11 +142,6 @@ x += 10
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
-
-		{token.IDENT, "x"},
-		{token.PLUS_ASSIGN, "+="},
-		{token.INT, "10"},
-
 		{token.EOF, ""},
 	}
 
