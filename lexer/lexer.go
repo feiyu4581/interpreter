@@ -112,13 +112,6 @@ func (lexer *Lexer) NextToken() token.Token {
 	lexer.skipWhiteSpace()
 
 	switch lexer.currentChar {
-	case '=':
-		if lexer.nextChar == '=' {
-			lexer.readChar()
-			tok = newTokenWithString(token.EQ, "==")
-		} else {
-			tok = newToken(token.ASSIGN, lexer.currentChar)
-		}
 	case ';':
 		tok = newToken(token.SEMICOLON, lexer.currentChar)
 	case '(':
@@ -128,7 +121,12 @@ func (lexer *Lexer) NextToken() token.Token {
 	case ',':
 		tok = newToken(token.COMMA, lexer.currentChar)
 	case '+':
-		tok = newToken(token.PLUS, lexer.currentChar)
+		if lexer.nextChar == '=' {
+			lexer.readChar()
+			tok = newTokenWithString(token.PLUS_ASSIGN, "+=")
+		} else {
+			tok = newToken(token.PLUS, lexer.currentChar)
+		}
 	case '{':
 		tok = newToken(token.LBRACE, lexer.currentChar)
 	case '}':
@@ -140,11 +138,20 @@ func (lexer *Lexer) NextToken() token.Token {
 	case '-':
 		tok = newToken(token.MINUS, lexer.currentChar)
 	case '!':
+		// 额外判断下是否是 ! 还是 !=
 		if lexer.nextChar == '=' {
 			lexer.readChar()
 			tok = newTokenWithString(token.NOT_EQ, "!=")
 		} else {
 			tok = newToken(token.BANG, lexer.currentChar)
+		}
+	case '=':
+		// 额外判断下是否是 = 还是 ==
+		if lexer.nextChar == '=' {
+			lexer.readChar()
+			tok = newTokenWithString(token.EQ, "==")
+		} else {
+			tok = newToken(token.ASSIGN, lexer.currentChar)
 		}
 	case '*':
 		tok = newToken(token.ASTERISK, lexer.currentChar)

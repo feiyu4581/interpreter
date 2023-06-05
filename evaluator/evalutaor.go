@@ -60,6 +60,18 @@ func Eval(node node.Node, env *object.Environment) object.Object {
 			return val
 		}
 		env.Set(n.Name.Value, val)
+	case *expression.AssignmentExpression:
+		_, ok := env.Get(n.Name.Value)
+		if !ok {
+			return newError("identifier not found: %s", n.Name.Value)
+		}
+
+		val := Eval(n.Value, env)
+		if isError(val) {
+			return val
+		}
+
+		env.Set(n.Name.Value, val)
 	case *expression.IntegerLiteral:
 		return &object.Integer{Value: n.Value}
 	case *expression.Boolean:

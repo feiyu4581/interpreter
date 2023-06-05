@@ -21,6 +21,7 @@ const (
 	PREFIX      // -X or !X
 	CALL        // myFunction(X)
 	INDEX       // array[index]
+	ASSIGN      // x = 2
 )
 
 var precedences = map[token.TokenType]int{
@@ -34,6 +35,7 @@ var precedences = map[token.TokenType]int{
 	token.ASTERISK: PRODUCT,
 	token.LPAREN:   CALL,
 	token.LBRACKET: INDEX,
+	token.ASSIGN:   ASSIGN,
 }
 
 type (
@@ -84,6 +86,7 @@ func NewParser(l lexer.LexerI) *Parser {
 	p.registerInfix(token.GT, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.ASSIGN, p.parseAssignmentExpression)
 
 	p.nextToken()
 	p.nextToken()
@@ -228,6 +231,20 @@ func (p *Parser) parseIndexExpression(left node.Expression) node.Expression {
 	if !p.expectPeek(token.RBRACKET) {
 		return nil
 	}
+
+	return exp
+}
+
+func (p *Parser) parseAssignmentExpression(left node.Expression) node.Expression {
+	identifier, ok := left.(*expression.Identifier)
+	if !ok {
+		p.errors = append(p.errors, "assignment expression must be a identifier in front of the equal sign.")
+		return nil
+	}
+
+	exp := &expression.AssignmentExpression{Token: p.curToken, Name: identifier}
+	p.nextToken()
+	exp.Value = p.parseExpression(LOWEST)
 
 	return exp
 }

@@ -36,6 +36,7 @@ if (5 < 10) {
 [1, 2];
 {"foo": "bar"}
 macro(x, y) { x + y; };
+x += 10
 `
 
 	tests := []struct {
@@ -146,6 +147,11 @@ macro(x, y) { x + y; };
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
+
+		{token.IDENT, "x"},
+		{token.PLUS_ASSIGN, "+="},
+		{token.INT, "10"},
+
 		{token.EOF, ""},
 	}
 

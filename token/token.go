@@ -11,12 +11,13 @@ const (
 	INT   = "INT"   // 1343456
 
 	// 运算符
-	ASSIGN   = "="
-	PLUS     = "+"
-	MINUS    = "-"
-	BANG     = "!"
-	ASTERISK = "*"
-	SLASH    = "/"
+	ASSIGN      = "="
+	PLUS        = "+"
+	MINUS       = "-"
+	BANG        = "!"
+	ASTERISK    = "*"
+	SLASH       = "/"
+	PLUS_ASSIGN = "+="
 
 	LT     = "<"
 	GT     = ">"
@@ -45,6 +46,7 @@ const (
 	RETURN   = "RETURN"
 	STRING   = "STRING"
 	MACRO    = "MACRO"
+	FOR      = "FOR"
 )
 
 type Token struct {
